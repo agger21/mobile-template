@@ -1,0 +1,28 @@
+@font-face {font-family: "iconfont";
+  src:url('iconfont.ttf?t=1554197208842') format('truetype')/* chrome, firefox, opera, Safari, Android, iOS 4.2+ */
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-shouye:before {
+  content: "\e67e";
+}
+
+.icon-luntan:before {
+  content: "\e60a";
+}
+
+.icon-dingdan:before {
+  content: "\e618";
+}
+
+.icon-wode:before {
+  content: "\e676";
+}
+
