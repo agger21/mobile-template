@@ -1,5 +1,6 @@
 // import {getQiniu} from '../server/api'
 import axios from 'axios'
+import ImageCompressor from 'image-compressor.js';
 
 export default {
   //添加cookie /修改cookie
@@ -98,48 +99,50 @@ export default {
   //上传七牛云
   uploadImgToQiniu(file, el) {
     return new Promise((resolve, reject) => {
+      let that = this;
+      new ImageCompressor(file, {
+        quality: 0.8,
+        success(result) {
+          getQiniu().then((res) => {
+            if (res.data.code == 200) {
+              const axiosInstance = axios.create({
+                withCredentials: false,
+              });    //withCredentials 禁止携带cookie，带cookie在七牛上有可能出现跨域问题
 
-      // getQiniu().then((res)=>{
-      //   if(res.data.code == 200){
-      //
-      //     const axiosInstance = axios.create({
-      //       withCredentials: false,
-      //     });    //withCredentials 禁止携带cookie，带cookie在七牛上有可能出现跨域问题
-      //
-      //     let data = new FormData();
-      //     data.append('xxx_Token', res.data.data.token);     //七牛需要的token，叫后台给，是七牛账号密码等组成的hash
-      //     data.append('file', file);
-      //     axiosInstance({
-      //       method: 'POST',
-      //       url: 'https://up-z2.qiniup.com',  //上传区域地址
-      //       data: data,
-      //       timeout:30000,      //超时时间，因为图片上传有可能需要很久
-      //       onUploadProgress: (progressEvent)=> {
-      //         //imgLoadPercent 是上传进度，可以用来添加进度条
-      //         // let imgLoadPercent = Math.round(progressEvent.loaded * 100 / progressEvent.total);
-      //       },
-      //     }).then(data =>{
-      //       //上传成功...  (登录七牛账号，找到七牛给你的 URL地址) 和 data里面的key 拼接成图片下载地址
-      //
-      //       let url = `${res.data.data.domain}${data.data.key}`
-      //       resolve(url)
-      //     }).catch(function(err) {
-      //       //上传失败
-      //
-      //       reject();
-      //       console.log(err,'上传错误！！')
-      //     });
-      //
-      //
-      //   }
-      //
-      // })
+              let data = new FormData();
+              data.append('xxx_Token', res.data.data.token);     //七牛需要的token，叫后台给，是七牛账号密码等组成的hash
+              data.append('file', result, result.name);
+              axiosInstance({
+                method: 'POST',
+                url: 'https://up-z2.qiniup.com',  //上传区域地址
+                data: data,
+                timeout: 30000,      //超时时间，因为图片上传有可能需要很久
+                onUploadProgress: (progressEvent) => {
+                  //imgLoadPercent 是上传进度，可以用来添加进度条
+                  // let imgLoadPercent = Math.round(progressEvent.loaded * 100 / progressEvent.total);
+                },
+              }).then(data => {
+                //上传成功...  (登录七牛账号，找到七牛给你的 URL地址) 和 data里面的key 拼接成图片下载地址
+                let url = `${res.data.data.domain}${data.data.key}`
+                resolve(url)
+              }).catch(function (err) {
+                //上传失败
+                reject();
+                console.log(err, '上传错误！！')
+              });
+
+
+            }
+
+          })
+        }
+
+
+      })
 
     })
-
-  },
+  }
 }
-
 
 
 
